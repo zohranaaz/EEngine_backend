@@ -3,7 +3,7 @@ import { User } from "../models/user";
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
-export const createUser: RequestHandler = async ( req, res, next) => {
+export const createUser: RequestHandler = async ( req, res) => {
        
     if (!req.body.email) {
         res.status(400).send({
@@ -31,7 +31,7 @@ export const createUser: RequestHandler = async ( req, res, next) => {
 
         User.create(user)
         .then(data => {
-          res.send(data);
+          res.status(201).json("User created successfully");
         })
         .catch(err => {
           res.status(500).send({
@@ -43,7 +43,7 @@ export const createUser: RequestHandler = async ( req, res, next) => {
       
 }
 
-exports.login = async (req, res) => {
+export const login: RequestHandler = async (req, res) => {
 
   const email = req.body.email;
   const password = req.body.password;
