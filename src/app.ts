@@ -1,33 +1,52 @@
-import express from 'express';
-import connection from './db/config';
+import express, {Request, Response} from 'express';
 import router from './routes/user.routes';
 import {json, urlencoded} from 'body-parser';
-const port = 3000;
-const app = express();
+import { Database } from "./models/index";
+import dotenv from 'dotenv';
+dotenv.config();
+
+const port = process.env.PORT;
 
 
-app.use(urlencoded({extended:true}));
-app.use(json());
-app.use("/user", router);
+export class App{
 
-app.use((
-  err:Error,
-    req:express.Request,
-    res:express.Response,
-    next:express.NextFunction
-)=>{
-    res.status(500).json({message:err.message});
-});
+   private app: express.Application;
+   
+   constructor(){
+    this.app = express();
+    this.app.use(json());
+    this.app.use(urlencoded({ extended:true}));
+    this.app.use("/user",router);
 
-connection.sync().then(()=>{
+    this.app.use((
+      err:Error,
+        req:express.Request,
+        res:express.Response,
+        next:express.NextFunction
+            )=>{
+                res.status(500).json({message:err.message});
+            });
+  }
 
-  console.log("Database synced successfully")
+    /**
+     * listen on port
+     */
+    public listen(port:string): void {
 
-}).catch((err)=>{
+      this.app.listen(port, () =>{
+      console.log(`Listening on port ${port}`);
+      })
+    }   
 
-   console.log("Error", err);
-});
+}
 
-app.listen(port, () => {
-  return console.log(`Express is listening at http://localhost:${port}`);
-});
+const app = new App();
+app.listen(port);
+const db = new Database();
+try {
+   db.addTables();
+   db.connect();
+} catch (error) {
+  
+  console.log("Error",error);
+}

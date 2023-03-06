@@ -1,7 +1,12 @@
 import { RequestHandler } from "express";
 import { User } from "../models/user";
+import { Employee } from "../models/employee";
+import dotenv from 'dotenv';
+dotenv.config();
+
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+const SecretKey = process.env.jwtSecretKey;
 
 export const createUser: RequestHandler = async ( req, res) => {
        
@@ -20,35 +25,55 @@ export const createUser: RequestHandler = async ( req, res) => {
       }
       else{
         const user = {
+          user_name: req.body.user_name?req.body.user_name:0,
           email: req.body.email,
-          password: req.body.password,
+          password: "root123",
           gender: req.body.gender
         };
-
+      
         const salt = await bcrypt.genSaltSync(10);
         const hashPassword = await bcrypt.hashSync(user.password, salt);
         user.password = hashPassword;
-
-        User.create(user)
-        .then(data => {
-          res.status(201).json("User created successfully");
-        })
-        .catch(err => {
-          res.status(500).send({
-            message:
-              err.message || "Some error occurred while creating the user."
-          });
-      });
+  
+        const userData = await User.create(user)
+  
+        const result = await addEmployee(req, userData.id)
+        
+        const empId = "AMT" + result.id;
+  
+        if (result) {
+          await User.update({ user_name: empId },{ where: { id:  userData.id} });
+          res.status(201).send({ message: "User created successfully" })
+        }
       } 
       
 }
 
+async function addEmployee(req, user_id) {
+
+  const employee = {
+    first_name: req.body.first_name,
+    last_name: req.body.last_name,
+    phone: req.body.phone,
+    designation: req.body.designation,
+    department: req.body.department,
+    role_id: req.body.role_id,
+    status: req.body.status,
+    parent_id: 101,
+    address_id: "",
+    user_id: user_id
+  };
+
+  const empData = await Employee.create(employee)
+  return empData;
+}
+
 export const login: RequestHandler = async (req, res) => {
 
-  const email = req.body.email;
+  const user_name = req.body.emp_id;
   const password = req.body.password;
 
-  const user = await User.findOne({ where: { email: email } });
+  const user = await User.findOne({ where: { user_name: user_name } });
   if (user === null) {
       res.status(404).send({message: "User not found!"})
   } else {
@@ -58,7 +83,8 @@ export const login: RequestHandler = async (req, res) => {
           "password": user.password,
           "gender": user.gender
       }
-      const token = jwt.sign(userData, 'ydwygyegyegcveyvcyegc', { expiresIn: 1800 });
+
+      const token = jwt.sign(userData, SecretKey, { expiresIn: 1800 });
 
       const response = {
           "token": token,
@@ -69,6 +95,16 @@ export const login: RequestHandler = async (req, res) => {
     } else {
       res.status(401).send({message: "Unauthorized"})
     }
+  }
+};
+
+export const getUser:RequestHandler = async (req, res) => {
+  const user = await User.findAll({});
+  if (user === null) {
+      console.log('Not found!');
+      res.status(500).send({message: "some error occured"})
+  } else {
+      res.status(200).send(user);
   }
 };
 
