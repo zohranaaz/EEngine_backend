@@ -1,12 +1,10 @@
 import { RequestHandler } from "express";
 import { User } from "../models/user";
 import { Employee } from "../models/employee";
-import dotenv from 'dotenv';
-dotenv.config();
-
+import config from "../config";
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
-const SecretKey = process.env.jwtSecretKey;
+const SecretKey = config.jwtsecretkey;
 
 export const createUser: RequestHandler = async ( req, res) => {
        
@@ -18,10 +16,8 @@ export const createUser: RequestHandler = async ( req, res) => {
       }
       
       const userData = await User.findOne({ where: { email: req.body.email } });
-
       if(userData){
         res.status(409).send({ message: "User already exist" })
-
       }
       else{
         const user = {
@@ -34,11 +30,8 @@ export const createUser: RequestHandler = async ( req, res) => {
         const salt = await bcrypt.genSaltSync(10);
         const hashPassword = await bcrypt.hashSync(user.password, salt);
         user.password = hashPassword;
-  
         const userData = await User.create(user)
-  
         const result = await addEmployee(req, userData.id)
-        
         const empId = "AMT" + result.id;
   
         if (result) {
@@ -81,11 +74,12 @@ export const login: RequestHandler = async (req, res) => {
       const userData = {
           "email": user.email,
           "password": user.password,
-          "gender": user.gender
+          "gender": user.gender,
+          "issuer": config.issuer,
+          "audience": config.audience
       }
 
       const token = jwt.sign(userData, SecretKey, { expiresIn: 1800 });
-
       const response = {
           "token": token,
           "expiresIn": 1800
@@ -101,7 +95,6 @@ export const login: RequestHandler = async (req, res) => {
 export const getUser:RequestHandler = async (req, res) => {
   const user = await User.findAll({});
   if (user === null) {
-      console.log('Not found!');
       res.status(500).send({message: "some error occured"})
   } else {
       res.status(200).send(user);

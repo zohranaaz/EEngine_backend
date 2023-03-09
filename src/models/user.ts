@@ -2,9 +2,7 @@ import { Table, Column, Model, DataType, CreatedAt, UpdatedAt} from "sequelize-t
 
 @Table({
     timestamps:false,
-    tableName:"user",
-   // createdAt:false,
-   // updatedAt:false
+    tableName:"user"
 })
 
 export class User extends Model{

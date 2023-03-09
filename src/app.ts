@@ -1,22 +1,22 @@
 import express, {Request, Response} from 'express';
-import router from './routes/user.routes';
+import userRoute from './routes/user.routes';
+import employeeRoute from './routes/employee.routes'
 import {json, urlencoded} from 'body-parser';
-import { Database } from "./models/index";
+import { Database } from "./db/config";
 import dotenv from 'dotenv';
 dotenv.config();
 
 const port = process.env.PORT;
 
-
 export class App{
 
    private app: express.Application;
-   
    constructor(){
     this.app = express();
     this.app.use(json());
     this.app.use(urlencoded({ extended:true}));
-    this.app.use("/user",router);
+    this.app.use("/user",userRoute);
+    this.app.use("/employee",employeeRoute);
 
     this.app.use((
       err:Error,
