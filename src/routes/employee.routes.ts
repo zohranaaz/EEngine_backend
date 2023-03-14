@@ -4,6 +4,6 @@ const employee = require("../controllers/employeeController");
 const router = Router();
 
 router.post("/punchInOut", authMiddleware, (req, res, next) => employee.punchInOut(req, res, next));
-router.get("/", authMiddleware, (req, res, next) => employee.getAttendance(req, res, next));  
+router.get("/getAttendanceById", authMiddleware, (req, res, next) => employee.getAttendanceById(req, res, next));  
 
 export default router; 

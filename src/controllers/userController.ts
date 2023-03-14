@@ -43,7 +43,6 @@ export const createUser: RequestHandler = async (req, res) => {
 }
 
 async function addEmployee(req, user_id) {
-
   const employee = {
     first_name: req.body.first_name,
     last_name: req.body.last_name,
@@ -74,9 +73,7 @@ export const login: RequestHandler = async (req, res) => {
       const userData = {
         "email": user.email,
         "password": user.password,
-        "gender": user.gender,
-        "issuer": config.issuer,
-        "audience": config.audience
+        "gender": user.gender
       }
 
       const token = jwt.sign(userData, SecretKey, { expiresIn: 1800 });

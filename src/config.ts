@@ -6,9 +6,7 @@ const config = {
     jwtsecretkey:process.env.jwtSecretKey,
     database:process.env.DATABASE,
     username:process.env.USERNAME,
-    host:process.env.HOST,
-    issuer:process.env.ISSUER,
-    audience:process.env.AUDIENCE
+    host:process.env.HOST
 }
 
 export default config; 
