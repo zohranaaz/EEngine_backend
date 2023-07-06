@@ -1,52 +1,55 @@
-import express, {Request, Response} from 'express';
+import express from 'express';
 import userRoute from './routes/user.routes';
-import employeeRoute from './routes/employee.routes'
-import {json, urlencoded} from 'body-parser';
+import adminRoute from './routes/admin.routes';
+import { json, urlencoded } from 'body-parser';
 import { Database } from "./db/config";
+import multer from "multer";
 import dotenv from 'dotenv';
+import config from './config';
 dotenv.config();
 
-const port = process.env.PORT;
+const port = config.port;
+const upload = multer();
 
-export class App{
+export class App {
 
-   private app: express.Application;
-   constructor(){
+  private app: express.Application;
+  constructor() {
     this.app = express();
     this.app.use(json());
-    this.app.use(urlencoded({ extended:true}));
-    this.app.use("/user",userRoute);
-    this.app.use("/employee",employeeRoute);
+    this.app.use(upload.any());
+    this.app.use(urlencoded({ extended: true }));
+    this.app.use("/user", userRoute);
+    this.app.use("/admin", adminRoute);
 
     this.app.use((
-      err:Error,
-        req:express.Request,
-        res:express.Response,
-        next:express.NextFunction
-            )=>{
-                res.status(500).json({message:err.message});
-            });
+      err: Error,
+      req: express.Request,
+      res: express.Response,
+      next: express.NextFunction
+    ) => {
+      res.status(500).json({ message: err.message });
+    });
   }
 
-    /**
-     * listen on port
-     */
-    public listen(port:string): void {
+  mountDb(){
 
-      this.app.listen(port, () =>{
-      console.log(`Listening on port ${port}`);
-      })
-    }   
+    let db:Database;
+    db = new Database();
+    try {
+      db.addTables();
+      db.connect();
+    } catch (error) {
+      console.log("Error while initializing Db tables ", error);
+    }
+  }
 
-}
-
-const app = new App();
-app.listen(port);
-const db = new Database();
-try {
-   db.addTables();
-   db.connect();
-} catch (error) {
-  
-  console.log("Error",error);
+  init() {
+    this.app.listen(port, ()=>{
+      return console.log('The application is running on port', port);
+   }).on('error', (_error)=>{
+      return console.log('Error: ',_error.message );
+   }); 
+   this.mountDb();
+  }
 }

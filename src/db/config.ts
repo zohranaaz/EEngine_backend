@@ -1,22 +1,20 @@
 import { Sequelize } from "sequelize-typescript";
 import { User } from "../models/user";
-import { Employee } from "../models/employee"; 
-import { Attendance } from "../models/attendance";
+import { Role } from "../models/role";
+import config from "../config";
 
 export class Database{
     private sequelize:Sequelize;
     constructor(){
-        this.sequelize = new Sequelize('Ams', 'postgres', 'root@123', {
-            host: 'localhost',
-            dialect: 'postgres'
+        this.sequelize = new Sequelize(config.database, config.dbuser, config.dbpassword, {
+            host: config.host,
+            dialect: 'mysql'
           });
     }
 
     public async addTables(){
-        //  this.sequelize.addModels([__dirname + '/models']);
         this.sequelize.addModels([User]);
-        this.sequelize.addModels([Employee]);
-        this.sequelize.addModels([Attendance]); 
+        this.sequelize.addModels([Role]);
     }
 
     public async connect(){
@@ -29,6 +27,4 @@ export class Database{
             console.log("Unable to connect to database");
         }
     }
-
-
 }

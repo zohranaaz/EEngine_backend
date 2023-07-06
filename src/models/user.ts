@@ -13,27 +13,40 @@ export class User extends Model{
     email!:string;
 
     @Column({
-       type:DataType.STRING,
-       allowNull:false
+      type:DataType.STRING,
+      allowNull: false
     })
+    name!:string;
+
+    @Column({
+       type:DataType.STRING,
+       allowNull:true
+    })  
 
     password!:string;
 
     @Column({
-        type:DataType.STRING,
-        allowNull:false
- 
-     })
- 
-     gender!:string;
-
-
-    @Column({
-      type:DataType.STRING,
+      type:DataType.INTEGER,
       allowNull:false
 
    })
 
-    user_name!:string;
+     role_id!:string;
+
+   @Column({
+    type:DataType.DATE,
+    allowNull:false
+
+   })
+
+   created_at!:string;
+
+   @Column({
+    type:DataType.BOOLEAN,
+    allowNull:false
+
+   })
+
+   is_deleted!:string;
 
 }
